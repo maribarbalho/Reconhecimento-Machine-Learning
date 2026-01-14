@@ -3,106 +3,452 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Teachable Machine</title>
+    <title>Reconhecedor de Objetos - AI Vision</title>
 
-    <!-- Fonte moderna -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <!-- Fontes modernas -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
         * {
             box-sizing: border-box;
-            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 0;
         }
 
         body {
-            margin: 0;
+            font-family: 'Poppins', sans-serif;
             min-height: 100vh;
-            background: linear-gradient(135deg, #1e3c72, #2a5298);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            background-attachment: fixed;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: #fff;
+            color: #333;
+            padding: 20px;
+        }
+
+        .main-container {
+            width: 100%;
+            max-width: 900px;
+            animation: slideInUp 0.6s ease-out;
+        }
+
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(40px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            color: white;
+        }
+
+        .header-title {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 10px;
+            font-size: 2.5rem;
+            font-weight: 800;
+            text-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .header-icon {
+            font-size: 2.8rem;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .header-subtitle {
+            font-size: 1.1rem;
+            font-weight: 300;
+            opacity: 0.95;
+            margin-bottom: 10px;
+        }
+
+        .header-description {
+            font-size: 0.95rem;
+            opacity: 0.85;
+            max-width: 600px;
+            margin: 0 auto;
         }
 
         .container {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            border-radius: 16px;
-            padding: 24px 32px;
-            width: 100%;
-            max-width: 420px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
-            text-align: center;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 25px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.5);
         }
 
-        h1 {
-            margin-bottom: 8px;
-            font-size: 1.6rem;
+        .content-wrapper {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            align-items: center;
         }
 
-        p {
+        .camera-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .camera-label {
             font-size: 0.9rem;
-            opacity: 0.85;
-            margin-bottom: 20px;
-        }
-
-        button {
-            background: #00e0ff;
-            color: #003344;
-            border: none;
-            border-radius: 8px;
-            padding: 12px 20px;
-            font-size: 1rem;
             font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            margin-bottom: 20px;
-        }
-
-        button:hover {
-            background: #00bcd4;
-            transform: translateY(-2px);
+            color: #667eea;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
         #webcam-container {
             display: flex;
             justify-content: center;
-            margin-bottom: 16px;
+            position: relative;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 10px 40px rgba(102, 126, 234, 0.2);
         }
 
-        canvas {
-            border-radius: 12px;
-            border: 2px solid rgba(255,255,255,0.3);
+        #webcam-container canvas {
+            border-radius: 20px;
+            max-width: 100%;
+            display: block;
+            filter: drop-shadow(0 5px 15px rgba(0, 0, 0, 0.1));
+        }
+
+        .camera-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.85rem;
+            color: #666;
+            margin-top: 10px;
+        }
+
+        .status-indicator {
+            width: 10px;
+            height: 10px;
+            background: #4CAF50;
+            border-radius: 50%;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.7);
+            }
+            50% {
+                box-shadow: 0 0 0 8px rgba(76, 175, 80, 0);
+            }
+        }
+
+        .results-section {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .results-header {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #667eea;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
         }
 
         #label-container {
-            text-align: left;
-            background: rgba(0,0,0,0.25);
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            max-height: 320px;
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+
+        #label-container::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        #label-container::-webkit-scrollbar-track {
+            background: rgba(102, 126, 234, 0.1);
+            border-radius: 10px;
+        }
+
+        #label-container::-webkit-scrollbar-thumb {
+            background: rgba(102, 126, 234, 0.3);
+            border-radius: 10px;
+        }
+
+        #label-container::-webkit-scrollbar-thumb:hover {
+            background: rgba(102, 126, 234, 0.5);
+        }
+
+        .prediction-item {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.05), rgba(240, 147, 251, 0.05));
+            border: 1.5px solid rgba(102, 126, 234, 0.2);
+            border-radius: 15px;
+            padding: 15px 20px;
+            transition: all 0.3s ease;
+            animation: slideIn 0.4s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .prediction-item:hover {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(240, 147, 251, 0.1));
+            border-color: rgba(102, 126, 234, 0.4);
+            transform: translateX(5px);
+        }
+
+        .prediction-label {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .prediction-confidence {
+            font-size: 0.85rem;
+            color: #666;
+            margin-bottom: 8px;
+        }
+
+        .confidence-bar {
+            width: 100%;
+            height: 8px;
+            background: rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .confidence-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2, #f093fb);
+            border-radius: 10px;
+            transition: width 0.3s ease;
+            box-shadow: 0 0 10px rgba(102, 126, 234, 0.4);
+        }
+
+        .confidence-percentage {
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: #667eea;
+            margin-top: 6px;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 12px;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            flex: 1;
+            min-width: 140px;
+            padding: 14px 28px;
+            font-size: 1rem;
+            font-weight: 600;
+            border: none;
             border-radius: 12px;
-            padding: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Poppins', sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
-        #label-container div {
-            font-size: 0.9rem;
-            padding: 6px 0;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
+        #startBtn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
         }
 
-        #label-container div:last-child {
-            border-bottom: none;
+        #startBtn:hover:not(:disabled) {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 35px rgba(102, 126, 234, 0.4);
+        }
+
+        #stopBtn {
+            background: linear-gradient(135deg, #f093fb, #764ba2);
+            color: white;
+            box-shadow: 0 10px 25px rgba(240, 147, 251, 0.3));
+            display: none;
+        }
+
+        #stopBtn:hover:not(:disabled) {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 35px rgba(240, 147, 251, 0.4);
+        }
+
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        button:active:not(:disabled) {
+            transform: translateY(-1px);
+        }
+
+        .empty-state {
+            text-align: center;
+            color: #999;
+            padding: 40px 20px;
+            font-size: 0.95rem;
+        }
+
+        .empty-state-icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            opacity: 0.5;
+        }
+
+        @media (max-width: 768px) {
+            .content-wrapper {
+                grid-template-columns: 1fr;
+                gap: 30px;
+            }
+
+            .container {
+                padding: 30px 20px;
+            }
+
+            .header-title {
+                font-size: 1.8rem;
+                gap: 10px;
+            }
+
+            .header-icon {
+                font-size: 2rem;
+            }
+
+            .button-group {
+                margin-top: 20px;
+            }
+
+            button {
+                min-width: auto;
+                padding: 12px 20px;
+                font-size: 0.9rem;
+            }
+        }
+
+        .loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        .loader-dots {
+            display: flex;
+            gap: 4px;
+        }
+
+        .loader-dots span {
+            width: 6px;
+            height: 6px;
+            background: #667eea;
+            border-radius: 50%;
+            animation: bounce 1.4s infinite;
+        }
+
+        .loader-dots span:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .loader-dots span:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
         }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <h1>Teachable Machine</h1>
-    <p>Reconhecimento de imagem em tempo real</p>
+<div class="main-container">
+    <div class="header">
+        <div class="header-title">
+            <i class="fas fa-eye header-icon"></i>
+            AI Vision
+        </div>
+        <div class="header-subtitle">Reconhecedor de Objetos em Tempo Real</div>
+        <div class="header-description">
+            Utilize sua câmera para identificar objetos com precisão usando inteligência artificial
+        </div>
+    </div>
 
-    <button type="button" onclick="init()">Iniciar câmera</button>
+    <div class="container">
+        <div class="content-wrapper">
+            <div class="camera-section">
+                <div class="camera-label">
+                    <i class="fas fa-camera"></i> Câmera
+                </div>
+                <div id="webcam-container"></div>
+                <div class="camera-status" id="cameraStatus" style="display: none;">
+                    <div class="status-indicator"></div>
+                    <span>Câmera ativa</span>
+                </div>
+            </div>
 
-    <div id="webcam-container"></div>
-    <div id="label-container"></div>
+            <div class="results-section">
+                <div class="results-header">
+                    <i class="fas fa-chart-bar"></i> Resultados
+                </div>
+                <div id="label-container">
+                    <div class="empty-state">
+                        <div class="empty-state-icon">
+                            <i class="fas fa-play-circle"></i>
+                        </div>
+                        <p>Clique em "Iniciar Câmera" para começar o reconhecimento</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="button-group">
+            <button type="button" id="startBtn" onclick="init()">
+                <i class="fas fa-play"></i> Iniciar Câmera
+            </button>
+            <button type="button" id="stopBtn" onclick="stop()">
+                <i class="fas fa-stop"></i> Parar
+            </button>
+        </div>
+    </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
@@ -112,30 +458,90 @@
     const URL = "./";
 
     let model, webcam, labelContainer, maxPredictions;
+    let isRunning = false;
 
     async function init() {
-        const modelURL = URL + "model.json";
-        const metadataURL = URL + "metadata.json";
+        try {
+            document.getElementById("startBtn").disabled = true;
+            labelContainer = document.getElementById("label-container");
+            labelContainer.innerHTML = `
+                <div class="loading">
+                    <span>Carregando modelo</span>
+                    <div class="loader-dots">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </div>
+                </div>
+            `;
 
-        model = await tmImage.load(modelURL, metadataURL);
-        maxPredictions = model.getTotalClasses();
+            const modelURL = URL + "model.json";
+            const metadataURL = URL + "metadata.json";
 
-        const flip = true;
-        webcam = new tmImage.Webcam(220, 220, flip);
-        await webcam.setup();
-        await webcam.play();
-        window.requestAnimationFrame(loop);
+            model = await tmImage.load(modelURL, metadataURL);
+            maxPredictions = model.getTotalClasses();
 
-        document.getElementById("webcam-container").appendChild(webcam.canvas);
-        labelContainer = document.getElementById("label-container");
-        labelContainer.innerHTML = "";
+            labelContainer.innerHTML = `
+                <div class="loading">
+                    <span>Inicializando câmera</span>
+                    <div class="loader-dots">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </div>
+                </div>
+            `;
 
-        for (let i = 0; i < maxPredictions; i++) {
-            labelContainer.appendChild(document.createElement("div"));
+            const flip = true;
+            webcam = new tmImage.Webcam(300, 300, flip);
+            await webcam.setup();
+            await webcam.play();
+
+            isRunning = true;
+            document.getElementById("startBtn").style.display = "none";
+            document.getElementById("stopBtn").style.display = "flex";
+            document.getElementById("cameraStatus").style.display = "flex";
+
+            document.getElementById("webcam-container").innerHTML = "";
+            document.getElementById("webcam-container").appendChild(webcam.canvas);
+            
+            labelContainer.innerHTML = "";
+
+            for (let i = 0; i < maxPredictions; i++) {
+                const predictionDiv = document.createElement("div");
+                predictionDiv.className = "prediction-item";
+                predictionDiv.innerHTML = `
+                    <div class="prediction-label">
+                        <i class="fas fa-cube"></i>
+                        <span>Objeto ${i + 1}</span>
+                    </div>
+                    <div class="prediction-confidence">Confiança: <span class="confidence-percentage">0%</span></div>
+                    <div class="confidence-bar">
+                        <div class="confidence-fill" style="width: 0%"></div>
+                    </div>
+                `;
+                labelContainer.appendChild(predictionDiv);
+            }
+
+            window.requestAnimationFrame(loop);
+        } catch (error) {
+            console.error("Erro ao inicializar:", error);
+            labelContainer.innerHTML = `
+                <div class="empty-state">
+                    <div class="empty-state-icon">
+                        <i class="fas fa-exclamation-circle"></i>
+                    </div>
+                    <p>Erro ao carregar o modelo ou câmera</p>
+                    <p style="font-size: 0.85rem; margin-top: 10px;">Certifique-se de que o arquivo model.json e metadata.json estão presentes</p>
+                </div>
+            `;
+            document.getElementById("startBtn").disabled = false;
         }
     }
 
     async function loop() {
+        if (!isRunning) return;
+        
         webcam.update();
         await predict();
         window.requestAnimationFrame(loop);
@@ -143,10 +549,67 @@
 
     async function predict() {
         const prediction = await model.predict(webcam.canvas);
+        
+        // Ordenar predições por confiança
+        const sortedPredictions = prediction
+            .map((pred, index) => ({ ...pred, originalIndex: index }))
+            .sort((a, b) => b.probability - a.probability);
+
         for (let i = 0; i < maxPredictions; i++) {
-            labelContainer.childNodes[i].innerHTML =
-                `${prediction[i].className}: ${(prediction[i].probability * 100).toFixed(1)}%`;
+            const pred = sortedPredictions[i];
+            const percentage = (pred.probability * 100).toFixed(1);
+            const item = labelContainer.childNodes[i];
+            
+            if (item) {
+                const confidencePercentage = item.querySelector(".confidence-percentage");
+                const confidenceFill = item.querySelector(".confidence-fill");
+                const predictionLabel = item.querySelector(".prediction-label span");
+                
+                if (predictionLabel) {
+                    predictionLabel.textContent = pred.className;
+                }
+                
+                if (confidencePercentage) {
+                    confidencePercentage.textContent = percentage + "%";
+                }
+                
+                if (confidenceFill) {
+                    confidenceFill.style.width = percentage + "%";
+                }
+
+                // Destaque para a classe com maior confiança
+                if (i === 0 && pred.probability > 0.5) {
+                    item.style.borderColor = "rgba(102, 126, 234, 0.6)";
+                    item.style.background = "linear-gradient(135deg, rgba(102, 126, 234, 0.15), rgba(240, 147, 251, 0.15))";
+                } else {
+                    item.style.borderColor = "rgba(102, 126, 234, 0.2)";
+                    item.style.background = "linear-gradient(135deg, rgba(102, 126, 234, 0.05), rgba(240, 147, 251, 0.05))";
+                }
+            }
         }
+    }
+
+    function stop() {
+        isRunning = false;
+        
+        if (webcam) {
+            webcam.stop();
+        }
+        
+        document.getElementById("startBtn").style.display = "flex";
+        document.getElementById("stopBtn").style.display = "none";
+        document.getElementById("startBtn").disabled = false;
+        document.getElementById("cameraStatus").style.display = "none";
+        
+        document.getElementById("webcam-container").innerHTML = "";
+        labelContainer.innerHTML = `
+            <div class="empty-state">
+                <div class="empty-state-icon">
+                    <i class="fas fa-play-circle"></i>
+                </div>
+                <p>Câmera parada. Clique em "Iniciar Câmera" para recomeçar</p>
+            </div>
+        `;
     }
 </script>
 
