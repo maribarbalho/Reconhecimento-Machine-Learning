@@ -273,19 +273,7 @@
         }
 
         button {
-            flex: 1;
-            min-width: 200px;
-            padding: 14px 28px;
-            font-size: 1rem;
-            font-weight: 600;
-            border: none;
-            border-radius: 12px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-family: 'Poppins', sans-serif;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            flex: 0 1 auto; /* Impede que o botão estique demais se não houver necessidade */
+            flex: 0 1 auto;
             min-width: 180px;
             padding: 14px 28px;
             font-size: 1rem;
@@ -297,7 +285,6 @@
             font-family: 'Poppins', sans-serif;
             text-transform: uppercase;
             letter-spacing: 0.5px;
-            /* Adicionado para alinhar ícone e texto */
             display: flex;
             align-items: center;
             justify-content: center;
@@ -318,7 +305,7 @@
         #stopBtn {
             background: linear-gradient(135deg, #f093fb, #764ba2);
             color: white;
-            box-shadow: 0 10px 25px rgba(240, 147, 251, 0.3));
+            box-shadow: 0 10px 25px rgba(240, 147, 251, 0.3);
             display: none;
         }
 
@@ -511,7 +498,9 @@
 
             const flip = true;
             webcam = new tmImage.Webcam(300, 300, flip);
-            await webcam.setup();
+            await webcam.setup().catch(err => {
+                throw new Error("Permissão de câmera negada. Verifique as configurações do seu navegador.");
+            });
             await webcam.play();
 
             isRunning = true;
